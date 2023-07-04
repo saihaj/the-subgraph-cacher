@@ -26,9 +26,9 @@ importers:
       '@graphql-tools/executor-http':
         specifier: ^1.0.1
         version: 1.0.1(@types/node@20.3.2)(graphql@16.7.1)
-      '@graphql-tools/wrap':
-        specifier: ^10.0.0
-        version: 10.0.0(graphql@16.7.1)
+      '@graphql-tools/executor-yoga':
+        specifier: ^2.0.1
+        version: 2.0.1(@envelop/core@4.0.0)(graphql-yoga@4.0.3)(graphql@16.7.1)
       graphql:
         specifier: ^16.7.1
         version: 16.7.1
@@ -520,6 +520,19 @@ packages:
       value-or-promise: 1.0.12
     dev: false
 
+  /@graphql-tools/executor-envelop@2.0.1(@envelop/core@4.0.0)(graphql@16.7.1):
+    resolution: {integrity: sha512-rBston0GwYGyRpzWsLutbk1IuLu9eP7xtJ+WIMylRi36YlKWdgh0W+9kWwE3fg3Tq841CHO3/gv97PcacsyFYg==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@envelop/core': ^3.0.4 || ^4.0.0
+    dependencies:
+      '@envelop/core': 4.0.0
+      '@graphql-tools/utils': 10.0.3(graphql@16.7.1)
+      tslib: 2.6.0
+    transitivePeerDependencies:
+      - graphql
+    dev: false
+
   /@graphql-tools/executor-http@1.0.1(@types/node@20.3.2)(graphql@16.7.1):
     resolution: {integrity: sha512-36D2oxVuv7NboFdPPS9MDOICvsg08P1K9xkqcQTB4UQogkUn58ZFfWM+4cZ9rwfNCIPTIzH4quoj7Xo09xbzmw==}
     engines: {node: '>=16.0.0'}
@@ -536,6 +549,23 @@ packages:
       value-or-promise: 1.0.12
     transitivePeerDependencies:
       - '@types/node'
+    dev: false
+
+  /@graphql-tools/executor-yoga@2.0.1(@envelop/core@4.0.0)(graphql-yoga@4.0.3)(graphql@16.7.1):
+    resolution: {integrity: sha512-NydwwCOaq0cwoIhm4m74SfEFqF7bOSGItVuR7wleg4CJDV+CxNyNKlCkJOKYOT1dfQ3kGm0bbpUmpr1QHcnrAQ==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      graphql: ^15.2.0 || ^16.0.0
+      graphql-yoga: ^3.5.1 || ^4.0.0
+    dependencies:
+      '@graphql-tools/executor-envelop': 2.0.1(@envelop/core@4.0.0)(graphql@16.7.1)
+      '@graphql-tools/utils': 10.0.3(graphql@16.7.1)
+      '@graphql-tools/wrap': 10.0.0(graphql@16.7.1)
+      graphql: 16.7.1
+      graphql-yoga: 4.0.3(graphql@16.7.1)
+      tslib: 2.6.0
+    transitivePeerDependencies:
+      - '@envelop/core'
     dev: false
 
   /@graphql-tools/executor@1.1.0(graphql@16.7.1):

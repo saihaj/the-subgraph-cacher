@@ -1,0 +1,25 @@
+{
+  "name": "the-subgraph-cacher",
+  "private": true,
+  "scripts": {
+    "format": "prettier . --write",
+    "check": "pnpm -r check",
+    "build": "pnpm -r build",
+    "prettier": "prettier --write .",
+    "prerelase": "pnpm build",
+    "release": "changeset publish"
+  },
+  "engines": {
+    "pnpm": ">=8"
+  },
+  "packageManager": "pnpm@8.6.5",
+  "devDependencies": {
+    "@changesets/cli": "2.26.2",
+    "@types/node": "20.3.2",
+    "prettier": "2.8.8",
+    "typescript": "5.1.6"
+  },
+  "overrides": {
+    "graphql": "16.6.0"
+  }
+}

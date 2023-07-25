@@ -1,6 +1,7 @@
 name = "cache-the-graph"
 main = "src/index.ts"
 compatibility_date = "2023-07-17"
+account_id = "6d5bc18cd8d13babe7ed321adba3d8ae"
 compatibility_flags= ["nodejs_compat"]
 
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
@@ -13,7 +14,7 @@ compatibility_flags= ["nodejs_compat"]
 # Docs: https://developers.cloudflare.com/workers/runtime-apis/kv
 
 kv_namespaces = [
-  { binding = "v1_cache_the_graph", id = "7464b8fa7c41426cb0fb51cbd0de37c0" }
+  { binding = "v1_cache_the_graph", id = "1e325b7bc16044ef977d83b6acfc571b" }
 ]
 
 # Bind an R2 Bucket. Use R2 to store arbitrarily large blobs of data, such as files.

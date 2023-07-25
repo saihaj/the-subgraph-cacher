@@ -18,7 +18,7 @@ export const skipValidate: Plugin = {
   },
 };
 
-const GLOBAL_CACHE_TTL_SECONDS = 60;
+const GLOBAL_CACHE_TTL_SECONDS = 300;
 
 type CacheData = {
   operation: string;

@@ -1,6 +1,6 @@
 import { createYoga } from "graphql-yoga";
 import { Env } from "./types";
-import { remoteExecutor, skipValidate } from "./graphql";
+import { GRAPHQL_ENDPOINT, remoteExecutor, skipValidate } from "./graphql";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
@@ -12,7 +12,7 @@ export default {
       context: {
         env,
       },
-      graphqlEndpoint: "/:username/:subgraph_name/graphql",
+      graphqlEndpoint: GRAPHQL_ENDPOINT,
     });
 
     return yoga.fetch(request, env, ctx);

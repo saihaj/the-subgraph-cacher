@@ -1,6 +1,11 @@
 import { Plugin, createLRUCache } from "graphql-yoga";
 import { normalizeOperation } from "@graphql-hive/core";
 import { Env } from "./types";
+import z from "zod";
+
+export const GRAPHQL_ENDPOINT = "/:type/:identifier/:name";
+
+const subgraphServiceType = z.enum(["hosted", "gateway", "studio"]);
 
 /**
  * It is a safe assumption that we skip validation on this gateway
@@ -45,45 +50,108 @@ const cacheStore = (env: Env, ttl: number) => {
 };
 
 async function createHashKey({
-  endpoint,
   variables,
   normalizedOp,
+  type,
+  name,
+  identifier,
 }: {
   normalizedOp: string;
-  endpoint: string;
   variables: string;
+  type: string;
+  name: string;
+  identifier: string;
 }) {
+  const serviceKeyPrefix = `${type}:${identifier}:${name}`;
   const encode = new TextEncoder().encode(
-    JSON.stringify({ endpoint, variables, normalizedOp })
+    JSON.stringify({ variables, normalizedOp })
   );
   const encrypted = await crypto.subtle.digest("md5", encode);
 
-  return [...new Uint8Array(encrypted)]
+  return `${serviceKeyPrefix}//${[...new Uint8Array(encrypted)]
     .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+    .join("")}`;
 }
 
-const hostedServicePattern = new URLPattern({
-  pathname: "/:username/:subgraph_name/graphql",
+const urlPattern = new URLPattern({
+  pathname: GRAPHQL_ENDPOINT,
 });
+
+const getHostedServiceUrl = ({
+  username,
+  subgraphName,
+}: {
+  username: string;
+  subgraphName: string;
+}) => `https://api.thegraph.com/subgraphs/name/${username}/${subgraphName}`;
+
+const getStudioUrl = ({
+  subgraphName,
+  studioUserNumber,
+}: {
+  studioUserNumber: string;
+  subgraphName: string;
+}) =>
+  `https://api.studio.thegraph.com/query/${studioUserNumber}/${subgraphName}/version/latest`;
+
+const getGatewayUrl = ({
+  apiKey,
+  subgraphId,
+}: {
+  apiKey: string;
+  subgraphId: string;
+}) => `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${subgraphId}`;
 
 export const remoteExecutor: Plugin<{ env: Env }> = {
   async onExecute({ args, setResultAndStopExecution }) {
     const store = cacheStore(args.contextValue.env, GLOBAL_CACHE_TTL_SECONDS);
-    const result = hostedServicePattern.exec(args.contextValue.request.url);
-    const { username, subgraph_name } = result?.pathname.groups ?? {};
+    const result = urlPattern.exec(args.contextValue.request.url);
+    const { type, identifier, name } = result?.pathname.groups ?? {};
 
-    if (!username || !subgraph_name) {
-      console.error({ username, subgraph_name }, "Invalid subgraph URL");
+    if (!type || !identifier || !name) {
+      console.error({ type, identifier, name }, "Invalid subgraph URL");
       throw new Error("Invalid subgraph URL");
     }
 
-    console.debug({
-      username,
-      subgraph_name,
-    });
+    const parsedType = subgraphServiceType.safeParse(type);
 
-    const endpoint = `https://api.thegraph.com/subgraphs/name/${username}/${subgraph_name}`;
+    if (!parsedType.success) {
+      console.error(
+        { type, identifier, name },
+        "Unsupported subgraph service type"
+      );
+      throw new Error("Unsupported subgraph service type");
+    }
+    const serviceType = parsedType.data;
+
+    console.debug({ type: serviceType, identifier, name });
+
+    const endpoint = (() => {
+      switch (serviceType) {
+        case "gateway":
+          return getGatewayUrl({
+            apiKey: identifier,
+            subgraphId: name,
+          });
+        case "hosted":
+          return getHostedServiceUrl({
+            username: identifier,
+            subgraphName: name,
+          });
+        case "studio":
+          return getStudioUrl({
+            studioUserNumber: identifier,
+            subgraphName: name,
+          });
+        default:
+          return null;
+      }
+    })();
+
+    if (!endpoint) {
+      console.error({ type, identifier, name }, "Unable to find service URL");
+      throw new Error("Unable to find service URL");
+    }
 
     const normalizedOp = normalizeOperation({
       document: args.document,
@@ -95,7 +163,9 @@ export const remoteExecutor: Plugin<{ env: Env }> = {
     const variables = args.variableValues;
     const cacheKey = await createHashKey({
       normalizedOp,
-      endpoint,
+      type,
+      name,
+      identifier,
       variables: JSON.stringify(variables),
     });
 

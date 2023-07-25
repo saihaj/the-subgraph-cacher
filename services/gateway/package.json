@@ -16,6 +16,7 @@
   "dependencies": {
     "@graphql-hive/core": "^0.2.3",
     "graphql": "^16.7.1",
-    "graphql-yoga": "^4.0.3"
+    "graphql-yoga": "^4.0.3",
+    "zod": "^3.21.4"
   }
 }

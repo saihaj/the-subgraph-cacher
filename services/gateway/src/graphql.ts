@@ -1,4 +1,4 @@
-import { Plugin, createLRUCache } from "graphql-yoga";
+import { Plugin } from "graphql-yoga";
 import { normalizeOperation } from "@graphql-hive/core";
 import { Env } from "./types";
 import z from "zod";
@@ -30,10 +30,7 @@ type CacheData = {
 const cacheStore = (env: Env, ttl: number) => {
   return {
     async get(key: string) {
-      const data = await env.subgraph_cacher_hosted_service.get<CacheData>(
-        key,
-        "json"
-      );
+      const data = await env.v1_cache_the_graph.get<CacheData>(key, "json");
 
       if (!data) {
         return null;
@@ -42,7 +39,7 @@ const cacheStore = (env: Env, ttl: number) => {
       return data;
     },
     async set(key: string, data: CacheData) {
-      await env.subgraph_cacher_hosted_service.put(key, JSON.stringify(data), {
+      await env.v1_cache_the_graph.put(key, JSON.stringify(data), {
         expirationTtl: ttl,
       });
     },

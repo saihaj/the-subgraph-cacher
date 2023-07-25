@@ -1,4 +1,4 @@
-name = "the-subgraph-cacher-hosted-service"
+name = "cache-the-graph"
 main = "src/index.ts"
 compatibility_date = "2023-07-17"
 compatibility_flags= ["nodejs_compat"]
@@ -11,13 +11,9 @@ compatibility_flags= ["nodejs_compat"]
 
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
 # Docs: https://developers.cloudflare.com/workers/runtime-apis/kv
-kv_namespaces = [
-  { binding = "subgraph_cacher_hosted_service", id = "c8702842338a40aeaa3870edf3708771", preview_id = "c8702842338a40aeaa3870edf3708771" },
-]
 
-[env.production]
 kv_namespaces = [
-  { binding = "subgraph_cacher_hosted_service", id = "2ccd490155ae45979048c084eb00db10" }
+  { binding = "v1_cache_the_graph", id = "7464b8fa7c41426cb0fb51cbd0de37c0" }
 ]
 
 # Bind an R2 Bucket. Use R2 to store arbitrarily large blobs of data, such as files.

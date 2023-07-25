@@ -1,33 +1,20 @@
-import { createServer } from "node:http";
-import { Plugin, createYoga } from "graphql-yoga";
-import { buildHTTPExecutor } from "@graphql-tools/executor-http";
-import { useExecutor } from "@graphql-tools/executor-yoga";
+import { createYoga } from "graphql-yoga";
+import { Env } from "./types";
+import { GRAPHQL_ENDPOINT, remoteExecutor, skipValidate } from "./graphql";
 
-const endpoint = "https://api.thegraph.com/subgraphs/name/ensdomains/ens";
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const yoga = createYoga({
+      plugins: [skipValidate, remoteExecutor],
+      parserAndValidationCache: true,
+      maskedErrors: false,
+      landingPage: false,
+      context: {
+        env,
+      },
+      graphqlEndpoint: GRAPHQL_ENDPOINT,
+    });
 
-const remoteExecutor = buildHTTPExecutor({
-  endpoint,
-});
-
-/**
- * It is a safe assumption that we skip validation on this gateway
- * we are just caching data here. If we don't have data
- * we will pass through to the remote executor and remote validates it.
- */
-const skipValidate: Plugin = {
-  onValidate({ setResult }) {
-    setResult([]);
+    return yoga.fetch(request, env, ctx);
   },
 };
-
-const yoga = createYoga({
-  plugins: [skipValidate, useExecutor(remoteExecutor)],
-  parserAndValidationCache: true,
-  maskedErrors: false,
-});
-
-const server = createServer(yoga);
-
-server.listen(4000, () => {
-  console.log("Server is listening on port 4000");
-});

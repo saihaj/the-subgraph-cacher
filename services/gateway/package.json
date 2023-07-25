@@ -4,17 +4,19 @@
   "private": true,
   "description": "Gateway to cache all the subgraphs",
   "scripts": {
-    "start": "tsx ./src/index.ts",
+    "build": "wrangler publish --dry-run --outdir=dist",
+    "start": "wrangler dev",
     "check": "tsc --pretty && pnpm prettier --check ."
   },
   "devDependencies": {
-    "tsx": "^3.12.7",
-    "typescript": "5.1.6"
+    "@cloudflare/workers-types": "4.20230717.1",
+    "typescript": "5.1.6",
+    "wrangler": "^3.3.0"
   },
   "dependencies": {
-    "@graphql-tools/executor-http": "^1.0.1",
-    "@graphql-tools/executor-yoga": "^2.0.1",
+    "@graphql-hive/core": "^0.2.3",
     "graphql": "^16.7.1",
-    "graphql-yoga": "^4.0.3"
+    "graphql-yoga": "^4.0.3",
+    "zod": "^3.21.4"
   }
 }

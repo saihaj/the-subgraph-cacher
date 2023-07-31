@@ -1,12 +1,13 @@
 import { Plugin } from "graphql-yoga";
 import { normalizeOperation } from "@graphql-hive/core";
-import { Env } from "./types";
-import z from "zod";
+import { CfRequest, Env } from "./types";
 import { INTROSPECTION_QUERY } from "./introspection-query";
-
-export const GRAPHQL_ENDPOINT = "/:type/:identifier/:name";
-
-const subgraphServiceType = z.enum(["hosted", "gateway", "studio"]);
+import {
+  GLOBAL_CACHE_TTL_SECONDS,
+  GRAPHQL_ENDPOINT,
+  subgraphServiceType,
+} from "./constant";
+import { Analytics } from "./analytics";
 
 /**
  * It is a safe assumption that we skip validation on this gateway
@@ -18,8 +19,6 @@ export const skipValidate: Plugin = {
     setResult([]);
   },
 };
-
-const GLOBAL_CACHE_TTL_SECONDS = 300;
 
 type CacheData = {
   operation: string;
@@ -100,10 +99,11 @@ const getGatewayUrl = ({
   subgraphId: string;
 }) => `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${subgraphId}`;
 
-export const remoteExecutor: Plugin<{ env: Env }> = {
+export const remoteExecutor: Plugin<{ env: Env; analytics: Analytics }> = {
   async onExecute({ args, setResultAndStopExecution }) {
     const store = cacheStore(args.contextValue.env, GLOBAL_CACHE_TTL_SECONDS);
-    const result = urlPattern.exec(args.contextValue.request.url);
+    const request = args.contextValue.request as CfRequest;
+    const result = urlPattern.exec(request.url);
     const { type, identifier, name } = result?.pathname.groups ?? {};
 
     if (!type || !identifier || !name) {
@@ -184,6 +184,22 @@ export const remoteExecutor: Plugin<{ env: Env }> = {
     const cachedData = await store.get(cacheKey);
 
     if (cachedData) {
+      args.contextValue.analytics.track({
+        type: "key-usage",
+        value: {
+          type: "cache-hit",
+          key: cacheKey,
+          operationName: args.operationName,
+          service: serviceType,
+          name,
+          identifier,
+          country: request?.cf?.country || null,
+          city: request?.cf?.city || null,
+          latitude: request?.cf?.latitude || null,
+          longitude: request?.cf?.longitude || null,
+          version: "v1",
+        },
+      });
       return setResultAndStopExecution(
         cachedData.data as any // I trust me.
       );
@@ -206,6 +222,23 @@ export const remoteExecutor: Plugin<{ env: Env }> = {
       operation: normalizedOp,
       data,
       variables,
+    });
+
+    args.contextValue.analytics.track({
+      type: "key-usage",
+      value: {
+        type: "cache-write",
+        key: cacheKey,
+        operationName: args.operationName,
+        service: serviceType,
+        name,
+        identifier,
+        country: request?.cf?.country || null,
+        city: request?.cf?.city || null,
+        latitude: request?.cf?.latitude || null,
+        longitude: request?.cf?.longitude || null,
+        version: "v1",
+      },
     });
 
     console.log({

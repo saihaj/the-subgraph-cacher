@@ -32,6 +32,9 @@ importers:
       graphql-yoga:
         specifier: ^4.0.3
         version: 4.0.3(graphql@16.7.1)
+      workers-loki-logger:
+        specifier: ^0.1.15
+        version: 0.1.15
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -2788,6 +2791,10 @@ packages:
       '@cloudflare/workerd-linux-arm64': 1.20230717.0
       '@cloudflare/workerd-windows-64': 1.20230717.0
     dev: true
+
+  /workers-loki-logger@0.1.15:
+    resolution: {integrity: sha512-NYtNZXeevm4HHlFZkQTQMuQru1LoVVpEfc7LPZGJk03y2wru2/eXkp/6a9WVejilTWWa/x9nLM8TLY1UT18rig==}
+    dev: false
 
   /wrangler@3.3.0:
     resolution: {integrity: sha512-m9+mmf3BOT5Q6pPxiXOa/MkmCrJO/CGxuePrDW0las4oNmPdT+seYxQZkM8QJVKANm0MBuU1dJqSPPF3arh73w==}

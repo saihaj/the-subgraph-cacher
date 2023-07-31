@@ -8,6 +8,7 @@ import {
   subgraphServiceType,
 } from "./constant";
 import { Analytics } from "./analytics";
+import type { Logger } from "workers-loki-logger";
 
 /**
  * It is a safe assumption that we skip validation on this gateway
@@ -99,30 +100,33 @@ const getGatewayUrl = ({
   subgraphId: string;
 }) => `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${subgraphId}`;
 
-export const remoteExecutor: Plugin<{ env: Env; analytics: Analytics }> = {
+export const remoteExecutor: Plugin<{
+  env: Env;
+  analytics: Analytics;
+  logger: Logger;
+}> = {
   async onExecute({ args, setResultAndStopExecution }) {
     const store = cacheStore(args.contextValue.env, GLOBAL_CACHE_TTL_SECONDS);
     const request = args.contextValue.request as CfRequest;
     const result = urlPattern.exec(request.url);
+    const logger = args.contextValue.logger;
     const { type, identifier, name } = result?.pathname.groups ?? {};
+    logger.mdcSet("type", type);
+    logger.mdcSet("identifier", identifier);
+    logger.mdcSet("name", name);
 
     if (!type || !identifier || !name) {
-      console.error({ type, identifier, name }, "Invalid subgraph URL");
+      logger.error("Invalid subgraph URL");
       throw new Error("Invalid subgraph URL");
     }
 
     const parsedType = subgraphServiceType.safeParse(type);
 
     if (!parsedType.success) {
-      console.error(
-        { type, identifier, name },
-        "Unsupported subgraph service type"
-      );
+      logger.error("Unsupported subgraph service type");
       throw new Error("Unsupported subgraph service type");
     }
     const serviceType = parsedType.data;
-
-    console.debug({ type: serviceType, identifier, name });
 
     const endpoint = (() => {
       switch (serviceType) {
@@ -147,7 +151,7 @@ export const remoteExecutor: Plugin<{ env: Env; analytics: Analytics }> = {
     })();
 
     if (!endpoint) {
-      console.error({ type, identifier, name }, "Unable to find service URL");
+      logger.error("Unable to find service URL");
       throw new Error("Unable to find service URL");
     }
 
@@ -158,6 +162,7 @@ export const remoteExecutor: Plugin<{ env: Env; analytics: Analytics }> = {
      */
     let normalizedOp;
     if (args.operationName === "IntrospectionQuery") {
+      logger.info("Overriding introspection query");
       normalizedOp = INTROSPECTION_QUERY;
     } else {
       normalizedOp = normalizeOperation({
@@ -176,14 +181,12 @@ export const remoteExecutor: Plugin<{ env: Env; analytics: Analytics }> = {
       identifier,
       variables: JSON.stringify(variables),
     });
-
-    console.log({
-      cacheKey,
-    });
+    logger.mdcSet("cacheKey", cacheKey);
 
     const cachedData = await store.get(cacheKey);
 
     if (cachedData) {
+      logger.info("Cache hit");
       args.contextValue.analytics.track({
         type: "key-usage",
         value: {
@@ -205,6 +208,7 @@ export const remoteExecutor: Plugin<{ env: Env; analytics: Analytics }> = {
       );
     }
 
+    logger.info("Cache miss");
     const res = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -239,12 +243,6 @@ export const remoteExecutor: Plugin<{ env: Env; analytics: Analytics }> = {
         longitude: request?.cf?.longitude || null,
         version: "v1",
       },
-    });
-
-    console.log({
-      cacheKey,
-      query: normalizedOp,
-      endpoint,
     });
 
     return setResultAndStopExecution(data);

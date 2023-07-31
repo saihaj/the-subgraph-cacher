@@ -3,7 +3,7 @@ main = "src/index.ts"
 compatibility_date = "2023-07-17"
 account_id = "6d5bc18cd8d13babe7ed321adba3d8ae"
 compatibility_flags= ["nodejs_compat"]
-logpush = true
+logpush = false
 
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.

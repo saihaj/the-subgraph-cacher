@@ -208,16 +208,17 @@ export const remoteExecutor: Plugin<{
       );
     }
 
-    logger.info("Cache miss");
+    const payload = JSON.stringify({
+      query: normalizedOp,
+      variables,
+    });
+    logger.info(`Cache miss - ${payload}`);
     const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        query: normalizedOp,
-        variables,
-      }),
+      body: payload,
     });
     const data = await res.json();
 

@@ -2,6 +2,7 @@ import { Plugin } from "graphql-yoga";
 import { normalizeOperation } from "@graphql-hive/core";
 import { Env } from "./types";
 import z from "zod";
+import { INTROSPECTION_QUERY } from "./introspection-query";
 
 export const GRAPHQL_ENDPOINT = "/:type/:identifier/:name";
 
@@ -150,12 +151,22 @@ export const remoteExecutor: Plugin<{ env: Env }> = {
       throw new Error("Unable to find service URL");
     }
 
-    const normalizedOp = normalizeOperation({
-      document: args.document,
-      operationName: args.operationName,
-      removeAliases: false,
-      hideLiterals: true,
-    });
+    /**
+     * `graph-node` has an outdated version of introspection query.
+     * We need to get https://github.com/graphprotocol/graph-node/pull/4676 resolved
+     * But until then we can hijack the introspection query and use the old version.
+     */
+    let normalizedOp;
+    if (args.operationName === "IntrospectionQuery") {
+      normalizedOp = INTROSPECTION_QUERY;
+    } else {
+      normalizedOp = normalizeOperation({
+        document: args.document,
+        operationName: args.operationName,
+        removeAliases: false,
+        hideLiterals: true,
+      });
+    }
 
     const variables = args.variableValues;
     const cacheKey = await createHashKey({

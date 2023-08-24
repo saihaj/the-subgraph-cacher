@@ -9,6 +9,7 @@ import {
 } from "./constant";
 import { Analytics } from "./analytics";
 import type { Logger } from "workers-loki-logger";
+import { z } from "zod";
 
 /**
  * It is a safe assumption that we skip validation on this gateway
@@ -56,11 +57,18 @@ async function createHashKey({
 }: {
   normalizedOp: string;
   variables: string;
-  type: string;
+  type: z.infer<typeof subgraphServiceType>;
   name: string;
   identifier: string;
 }) {
-  const serviceKeyPrefix = `${type}:${identifier}:${name}`;
+  const serviceKeyPrefix =
+    /**
+     * Gateway keys were being too big
+     *
+     * We don't need users's API key part of the key. All other cache keys are also just caching subgraph
+     * and are not namespaced by user's usage. Our analytics will still be able to track usage by user's key
+     */
+    type === "gateway" ? `${type}:${name}` : `${type}:${identifier}:${name}`;
   const encode = new TextEncoder().encode(
     JSON.stringify({ variables, normalizedOp })
   );
@@ -176,11 +184,12 @@ export const remoteExecutor: Plugin<{
     const variables = args.variableValues;
     const cacheKey = await createHashKey({
       normalizedOp,
-      type,
+      type: serviceType,
       name,
       identifier,
       variables: JSON.stringify(variables),
     });
+    console.log("cacher key", cacheKey);
     logger.mdcSet("cacheKey", cacheKey);
 
     const cachedData = await store.get(cacheKey);

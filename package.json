@@ -21,5 +21,10 @@
   },
   "overrides": {
     "graphql": "16.6.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@graphql-hive/core@0.2.3": "patches/@graphql-hive__core@0.2.3.patch"
+    }
   }
 }

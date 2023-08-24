@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@graphql-hive/core@0.2.3':
+    hash: 7hurz4jjcubziqog5xksrzugdq
+    path: patches/@graphql-hive__core@0.2.3.patch
+
 importers:
 
   .:
@@ -25,7 +30,7 @@ importers:
     dependencies:
       '@graphql-hive/core':
         specifier: ^0.2.3
-        version: 0.2.3(graphql@16.7.1)
+        version: 0.2.3(patch_hash=7hurz4jjcubziqog5xksrzugdq)(graphql@16.7.1)
       graphql:
         specifier: ^16.7.1
         version: 16.7.1
@@ -549,7 +554,7 @@ packages:
     dev: true
     optional: true
 
-  /@graphql-hive/core@0.2.3(graphql@16.7.1):
+  /@graphql-hive/core@0.2.3(patch_hash=7hurz4jjcubziqog5xksrzugdq)(graphql@16.7.1):
     resolution: {integrity: sha512-dX5N7G4EPg0dN1VgE+WZWo4kHtUyZR+UURKwBdldEphD7RsUNA+7lQM9vBr++FdUuMQe4gtxgE3TGd5DvkAz8w==}
     peerDependencies:
       graphql: ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
@@ -557,6 +562,7 @@ packages:
       graphql: 16.7.1
       lodash.sortby: 4.7.0
     dev: false
+    patched: true
 
   /@graphql-tools/executor@1.1.0(graphql@16.7.1):
     resolution: {integrity: sha512-+1wmnaUHETSYxiK/ELsT60x584Rw3QKBB7F/7fJ83HKPnLifmE2Dm/K9Eyt6L0Ppekf1jNUbWBpmBGb8P5hAeg==}

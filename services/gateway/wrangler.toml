@@ -12,5 +12,5 @@ kv_namespaces = [
 ]
 
 analytics_engine_datasets = [
-  { binding = "v1_key_usage"}
+  { binding = "v1_key_usage" }
 ]

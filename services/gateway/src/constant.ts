@@ -2,7 +2,12 @@ import z from "zod";
 
 export const GRAPHQL_ENDPOINT = "/:type/:identifier/:name";
 
-export const subgraphServiceType = z.enum(["hosted", "gateway", "studio"]);
+export const subgraphServiceType = z.enum([
+  "hosted",
+  "gateway",
+  "gateway-arbitrum",
+  "studio",
+]);
 
 /**
  * Cache for 5 minutes

@@ -68,7 +68,9 @@ async function createHashKey({
      * We don't need users's API key part of the key. All other cache keys are also just caching subgraph
      * and are not namespaced by user's usage. Our analytics will still be able to track usage by user's key
      */
-    type === "gateway" ? `${type}:${name}` : `${type}:${identifier}:${name}`;
+    type === "gateway" || type === "gateway-arbitrum"
+      ? `${type}:${name}`
+      : `${type}:${identifier}:${name}`;
   const encode = new TextEncoder().encode(
     JSON.stringify({ variables, normalizedOp })
   );
@@ -108,6 +110,15 @@ const getGatewayUrl = ({
   subgraphId: string;
 }) => `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${subgraphId}`;
 
+const getArbitrumGatewayUrl = ({
+  apiKey,
+  subgraphId,
+}: {
+  apiKey: string;
+  subgraphId: string;
+}) =>
+  `https://gateway-arbitrum.network.thegraph.com/api/${apiKey}/subgraphs/id/${subgraphId}`;
+
 export const remoteExecutor: Plugin<{
   env: Env;
   analytics: Analytics;
@@ -143,6 +154,11 @@ export const remoteExecutor: Plugin<{
             apiKey: identifier,
             subgraphId: name,
           });
+        case "gateway-arbitrum":
+          return getArbitrumGatewayUrl({
+            apiKey: identifier,
+            subgraphId: name,
+          });
         case "hosted":
           return getHostedServiceUrl({
             username: identifier,
@@ -153,6 +169,7 @@ export const remoteExecutor: Plugin<{
             studioUserNumber: identifier,
             subgraphName: name,
           });
+
         default:
           return null;
       }

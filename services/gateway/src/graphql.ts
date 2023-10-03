@@ -194,7 +194,7 @@ export const remoteExecutor: Plugin<{
         document: args.document,
         operationName: args.operationName,
         removeAliases: false,
-        hideLiterals: true,
+        hideLiterals: false,
       });
     }
 

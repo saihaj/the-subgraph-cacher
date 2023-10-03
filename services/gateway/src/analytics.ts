@@ -44,7 +44,7 @@ export function createAnalytics(engines: { keyUsage: AnalyticsEngine }) {
         case "key-usage":
           switch (event.value.type) {
             case "cache-hit":
-              return engines.keyUsage.writeDataPoint({
+              return engines.keyUsage?.writeDataPoint({
                 blobs: [
                   "cache-hit",
                   event.value.version,
@@ -61,7 +61,7 @@ export function createAnalytics(engines: { keyUsage: AnalyticsEngine }) {
                 indexes: [event.value.key],
               });
             case "cache-write":
-              return engines.keyUsage.writeDataPoint({
+              return engines.keyUsage?.writeDataPoint({
                 blobs: [
                   "cache-write",
                   event.value.version,

@@ -119,6 +119,15 @@ const getArbitrumGatewayUrl = ({
 }) =>
   `https://gateway-arbitrum.network.thegraph.com/api/${apiKey}/subgraphs/id/${subgraphId}`;
 
+const getArbitrumDeploymentUrl = ({
+  apiKey,
+  deploymentId,
+}: {
+  apiKey: string;
+  deploymentId: string;
+}) =>
+  `https://gateway-arbitrum.network.thegraph.com/api/${apiKey}/deployments/id/${deploymentId}`;
+
 export const remoteExecutor: Plugin<{
   env: Env;
   analytics: Analytics;
@@ -158,6 +167,11 @@ export const remoteExecutor: Plugin<{
           return getArbitrumGatewayUrl({
             apiKey: identifier,
             subgraphId: name,
+          });
+        case "deployment-arbitrum":
+          return getArbitrumDeploymentUrl({
+            apiKey: identifier,
+            deploymentId: name,
           });
         case "hosted":
           return getHostedServiceUrl({

@@ -6,6 +6,7 @@ export const subgraphServiceType = z.enum([
   "hosted",
   "gateway",
   "gateway-arbitrum",
+  "deployment-arbitrum",
   "studio",
 ]);
 

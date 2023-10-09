@@ -71,7 +71,7 @@ async function createHashKey({
     type === "gateway" ||
     type === "gateway-arbitrum" ||
     type === "deployment-arbitrum"
-      ? `${type}:${name}`
+      ? `${type === "deployment-arbitrum" ? "did-arb" : type}:${name}`
       : `${type}:${identifier}:${name}`;
   const encode = new TextEncoder().encode(
     JSON.stringify({ variables, normalizedOp })

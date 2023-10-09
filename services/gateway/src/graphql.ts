@@ -68,7 +68,9 @@ async function createHashKey({
      * We don't need users's API key part of the key. All other cache keys are also just caching subgraph
      * and are not namespaced by user's usage. Our analytics will still be able to track usage by user's key
      */
-    type === "gateway" || type === "gateway-arbitrum"
+    type === "gateway" ||
+    type === "gateway-arbitrum" ||
+    type === "deployment-arbitrum"
       ? `${type}:${name}`
       : `${type}:${identifier}:${name}`;
   const encode = new TextEncoder().encode(

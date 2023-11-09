@@ -2,15 +2,13 @@ name = "cache-the-graph"
 main = "src/index.ts"
 compatibility_date = "2023-07-17"
 account_id = "6d5bc18cd8d13babe7ed321adba3d8ae"
-compatibility_flags= ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat"]
 logpush = false
 
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
 # Docs: https://developers.cloudflare.com/workers/runtime-apis/kv
 kv_namespaces = [
-  { binding = "v1_cache_the_graph", id = "1e325b7bc16044ef977d83b6acfc571b", preview_id = "1e325b7bc16044ef977d83b6acfc571b" }
+  { binding = "v1_cache_the_graph", id = "1e325b7bc16044ef977d83b6acfc571b", preview_id = "1e325b7bc16044ef977d83b6acfc571b" },
 ]
 
-analytics_engine_datasets = [
-  { binding = "v1_key_usage" }
-]
+analytics_engine_datasets = [{ binding = "v1_key_usage" }]

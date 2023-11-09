@@ -5,6 +5,7 @@ import { INTROSPECTION_QUERY } from "./introspection-query";
 import {
   GLOBAL_CACHE_TTL_SECONDS,
   GRAPHQL_ENDPOINT,
+  getBypassApiKey,
   subgraphServiceType,
 } from "./constant";
 import { Analytics } from "./analytics";
@@ -140,7 +141,7 @@ export const remoteExecutor: Plugin<{
     const request = args.contextValue.request as CfRequest;
     const result = urlPattern.exec(request.url);
     const logger = args.contextValue.logger;
-    const { type, identifier, name } = result?.pathname.groups ?? {};
+    let { type, identifier, name } = result?.pathname.groups ?? {};
     logger.mdcSet("type", type);
     logger.mdcSet("identifier", identifier);
     logger.mdcSet("name", name);
@@ -161,16 +162,20 @@ export const remoteExecutor: Plugin<{
     const endpoint = (() => {
       switch (serviceType) {
         case "gateway":
+          identifier = getBypassApiKey(identifier, args.contextValue.env);
+
           return getGatewayUrl({
             apiKey: identifier,
             subgraphId: name,
           });
         case "gateway-arbitrum":
+          identifier = getBypassApiKey(identifier, args.contextValue.env);
           return getArbitrumGatewayUrl({
             apiKey: identifier,
             subgraphId: name,
           });
         case "deployment-arbitrum":
+          identifier = getBypassApiKey(identifier, args.contextValue.env);
           return getArbitrumDeploymentUrl({
             apiKey: identifier,
             deploymentId: name,

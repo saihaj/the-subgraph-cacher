@@ -6,6 +6,7 @@ export interface Env {
   loki_secret: string;
   loki_username: string;
   environment: "development" | "production";
+  graph_api_key?: string;
 }
 
 export type CfRequest = Request & { cf?: IncomingRequestCfProperties };
